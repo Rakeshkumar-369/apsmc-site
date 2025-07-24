@@ -1,0 +1,36 @@
+.publications {
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.year-group {
+  margin-bottom: 30px;
+}
+
+.year-group h3 {
+  color: #004080;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.year-group ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.year-group li {
+  margin-bottom: 10px;
+}
+
+.year-group a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.year-group a:hover {
+  color: #004080;
+}

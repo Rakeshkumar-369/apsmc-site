@@ -1,0 +1,42 @@
+.home {
+  font-family: Arial, sans-serif;
+}
+
+.hero {
+  background-image: url('https://source.unsplash.com/1600x500/?india,government');
+  background-size: cover;
+  background-position: center;
+  height: 60vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  color: white;
+  text-align: center;
+}
+
+.about, .services {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.service-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.card {
+  background-color: #f1f1f1;
+  padding: 20px;
+  width: 250px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -1,9 +1,9 @@
 // src/pages/PopulationData.js
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for programmatic navigation
+// REMOVED: import { useNavigate } from 'react-router-dom'; // No longer needed as we'll open PDFs directly
 
 function PopulationData() {
-  const navigate = useNavigate();
+  // REMOVED: const navigate = useNavigate(); // No longer needed
 
   // Define the list of PDFs for Population Data.
   // IMPORTANT: Ensure these filenames exactly match the PDFs you place in your public/pdfs folder.
@@ -14,13 +14,11 @@ function PopulationData() {
     { title: "Projections of Minority Population by 2030", filename: "population-projection-2030.pdf" }
   ];
 
-  // Function to handle viewing a specific PDF in the dedicated viewer
-  const handleViewPdf = (pdfFileName) => {
-    // Construct the full path to the PDF, assuming it's in the public/pdfs/ folder
-    const pdfPath = `/pdfs/${pdfFileName}`;
-    // Navigate to the /view-pdf route, passing the PDF URL in the location state
-    navigate('/view-pdf', { state: { pdf: pdfPath } });
-  };
+  // REMOVED: Function to handle viewing a specific PDF in the dedicated viewer
+  // const handleViewPdf = (pdfFileName) => {
+  //   const pdfPath = `/pdfs/${pdfFileName}`;
+  //   navigate('/view-pdf', { state: { pdf: pdfPath } });
+  // };
 
   return (
     <div className="bg-apsmc-light py-20 px-6 min-h-screen">
@@ -45,9 +43,11 @@ function PopulationData() {
                 {pdf.title}
               </h3>
               <div className="flex space-x-4 mt-3 md:mt-0">
-                {/* Button to view the PDF in the integrated viewer */}
-                <button
-                  onClick={() => handleViewPdf(pdf.filename)}
+                {/* CHANGED: Now using a direct <a> tag to open PDF in a new tab */}
+                <a
+                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`} // Construct direct public path
+                  target="_blank" // Open in new tab
+                  rel="noopener noreferrer" // Security best practice for target="_blank"
                   className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -55,11 +55,11 @@ function PopulationData() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                   View PDF
-                </button>
-                {/* Link to directly download the PDF file */}
+                </a>
+                {/* The download link remains the same, as it already opened a download dialog */}
                 <a
-                  href={`/pdfs/${pdf.filename}`} // Direct link to the PDF file in the public folder
-                  download // This attribute tells the browser to download the file
+                  href={`/pdfs/${pdf.filename}`}
+                  download
                   className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

@@ -1,6 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState for form handling
 
 function Contact() {
+  // State to hold form data, including the new phone and file fields
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '', // New phone state
+    message: '',
+    attachedFile: null, // New file state
+  });
+  const [fileError, setFileError] = useState(''); // State for file validation error
+
+  // Generic handler for text input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Handler for file input changes
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (file.type === 'application/pdf') {
+        setFormData((prevData) => ({
+          ...prevData,
+          attachedFile: file,
+        }));
+        setFileError(''); // Clear any previous error
+      } else {
+        setFileError('Only PDF files are allowed.');
+        setFormData((prevData) => ({
+          ...prevData,
+          attachedFile: null, // Clear selected file if it's not a PDF
+        }));
+        e.target.value = ''; // Clear the input field in the UI
+      }
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        attachedFile: null,
+      }));
+      setFileError('');
+    }
+  };
+
+  // Handler for form submission (for demonstration, just logs data)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (fileError) {
+      alert(fileError);
+      return;
+    }
+    console.log('Form submitted:', formData);
+    alert('Thank you for your submission! (Submission functionality not yet implemented)');
+    // Here you would typically send formData to your backend API
+    // e.g., fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) });
+  };
+
   return (
     // Main page container with the theme's soft background
     <div className="bg-apsmc-light py-20 px-6">
@@ -47,10 +107,61 @@ function Contact() {
           <p className="text-gray-700 mb-10 text-lg text-center md:text-left">
             Your voice matters. Share your suggestions or file a grievance with the APSMC.
           </p>
-          <form className="space-y-6 text-left">
-            <input type="text" placeholder="Your Name" className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary" />
-            <input type="email" placeholder="Your Email" className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary" />
-            <textarea placeholder="Your Message / Grievance" rows="5" className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"></textarea>
+          <form className="space-y-6 text-left" onSubmit={handleSubmit}> {/* Added onSubmit handler */}
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name"
+              className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            {/* NEW: Phone Number Input */}
+            <input
+              type="tel" // Use type="tel" for phone numbers
+              name="phone"
+              placeholder="Your Phone Number"
+              className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+            <textarea
+              name="message"
+              placeholder="Your Message / Grievance"
+              rows="5"
+              className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"
+              value={formData.message}
+              onChange={handleChange}
+              required
+            ></textarea>
+            {/* NEW: File Input for PDF only */}
+            <div>
+              <label htmlFor="file-upload" className="block text-gray-700 text-sm font-bold mb-2">
+                Attach Document (PDF only):
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                name="attachedFile"
+                accept="application/pdf" // Restrict to PDF files
+                className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-apsmc-primary file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-apsmc-primary hover:file:bg-blue-100"
+                onChange={handleFileChange}
+              />
+              {fileError && <p className="text-red-500 text-xs mt-1">{fileError}</p>}
+              {formData.attachedFile && !fileError && (
+                <p className="text-sm text-gray-600 mt-1">Selected file: {formData.attachedFile.name}</p>
+              )}
+            </div>
             <button type="submit" className="bg-apsmc-primary text-white px-6 py-3 rounded hover:bg-green-700 transition">Submit</button>
           </form>
         </div>

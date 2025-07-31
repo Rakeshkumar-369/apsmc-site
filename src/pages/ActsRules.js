@@ -1,12 +1,11 @@
 // src/pages/ActsRules.js
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+// REMOVED: import { useNavigate } from 'react-router-dom'; // No longer needed as we'll open PDFs directly
 
 function ActsRules() {
-  const navigate = useNavigate();
+  // REMOVED: const navigate = useNavigate(); // No longer needed
 
   // Define the list of PDFs for Acts & Rules
-  // These are the actual PDF filenames from your public/pdfs folder
   const actsAndRulesPdfs = [
     { title: "Andhra Pradesh Minorities Act, 1994", filename: "acts-1994.pdf" },
     { title: "Andhra Pradesh Minorities Rules, 2000", filename: "rules-2000.pdf" },
@@ -14,13 +13,11 @@ function ActsRules() {
     { title: "Official Circular on New Act", filename: "new-act-circular.pdf" }
   ];
 
-  // Function to handle viewing a specific PDF
-  const handleViewPdf = (pdfFileName) => {
-    // Construct the path to the PDF in the public/pdfs folder
-    const pdfPath = `/pdfs/${pdfFileName}`;
-    // Navigate to the /view-pdf route, passing the PDF URL in state
-    navigate('/view-pdf', { state: { pdf: pdfPath } });
-  };
+  // REMOVED: Function to handle viewing a specific PDF via navigation
+  // const handleViewPdf = (pdfFileName) => {
+  //   const pdfPath = `/pdfs/${pdfFileName}`;
+  //   navigate('/view-pdf', { state: { pdf: pdfPath } });
+  // };
 
   return (
     <div className="bg-apsmc-light py-20 px-6 min-h-screen">
@@ -44,8 +41,11 @@ function ActsRules() {
                 {pdf.title}
               </h3>
               <div className="flex space-x-4 mt-3 md:mt-0">
-                <button
-                  onClick={() => handleViewPdf(pdf.filename)}
+                {/* CHANGED: Now using a direct <a> tag to open PDF in a new tab */}
+                <a
+                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`} // Construct direct public path
+                  target="_blank" // Open in new tab
+                  rel="noopener noreferrer" // Security best practice for target="_blank"
                   className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -53,11 +53,11 @@ function ActsRules() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                   View PDF
-                </button>
-                {/* Optional: Add a direct download link if preferred, similar to the viewer's download logic */}
+                </a>
+                {/* The download link remains the same, as it already opened a download dialog */}
                 <a
-                  href={`/pdfs/${pdf.filename}`} // Direct link to PDF
-                  download // Triggers download
+                  href={`/pdfs/${pdf.filename}`}
+                  download
                   className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

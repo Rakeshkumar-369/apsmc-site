@@ -12,15 +12,8 @@ function Home() {
     { icon: "🏫", title: "Welfare Initiatives", desc: "We promote education, employment, and targeted welfare schemes among minority groups." },
   ];
 
-  // handleSchemeClick is now NOT needed for direct navigation from Home, but useful inside sub-pages
-  // const handleSchemeClick = (pdfFileName) => {
-  //   const pdfPath = `/pdfs/${pdfFileName}`;
-  //   navigate('/view-pdf', { state: { pdf: pdfPath } });
-  // };
-
   return (
     <div>
-      <AnnouncementBar />
 
       <div className="relative bg-apsmc-primary text-white py-28 px-6 min-h-[400px]" data-aos="fade-up">
         <div className="max-w-6xl mx-auto text-center">
@@ -65,6 +58,8 @@ function Home() {
         </div>
       </div>
 
+      <AnnouncementBar />
+
       {/* Chairman's Message */}
       <div className="bg-apsmc-light py-20 px-6" data-aos="fade-up">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -86,23 +81,23 @@ function Home() {
       <div className="bg-apsmc-light py-20 px-6" data-aos="fade-up">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-apsmc-primary mb-12">Schemes & Programs</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 text-center">
             {[
-              // Reverted back to Link component and path property
               { icon: "📘", title: "Acts & Rules", path: "/acts-rules" },
               { icon: "📜", title: "Circulars & Orders", path: "/circulars-orders" },
               { icon: "👥", title: "Population Data", path: "/population" },
               { icon: "📢", title: "Tenders", path: "/tenders" },
-              { icon: "🎓", title: "Scholarships", path: "/scholarships" },
+              { icon: "🎓", title: "PM's 15 Point Programme", path: "/pms-15-point-programme" },
               { icon: "📊", title: "Budget", path: "/budget" },
             ].map((item, i) => (
-              <Link // <--- CHANGED: Back to Link component
+              <Link
                 key={i}
-                to={item.path} // <--- CHANGED: Use item.path
-                className="bg-white hover:bg-green-50 rounded-xl shadow p-6 transition duration-300 flex flex-col items-center"
+                to={item.path}
+                // Further refined classes for very small mobile screens
+                className="bg-white hover:bg-green-50 rounded-xl shadow p-3 transition duration-300 flex flex-col items-center justify-center text-center sm:p-6" // Reduced base padding to p-3
               >
-                <div className="text-apsmc-primary text-4xl mb-3">{item.icon}</div>
-                <h3 className="text-lg font-semibold text-apsmc-primary">{item.title}</h3>
+                <div className="text-apsmc-primary text-2xl sm:text-4xl mb-2">{item.icon}</div> {/* Reduced icon size to text-2xl for smallest screens, mb-2 for less margin */}
+                <h3 className="text-sm sm:text-lg font-semibold text-apsmc-primary leading-tight">{item.title}</h3> {/* Reduced text size to text-sm, added leading-tight */}
               </Link>
             ))}
           </div>

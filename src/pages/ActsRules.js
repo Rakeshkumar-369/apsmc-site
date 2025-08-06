@@ -1,23 +1,14 @@
-// src/pages/ActsRules.js
 import React from 'react';
-// REMOVED: import { useNavigate } from 'react-router-dom'; // No longer needed as we'll open PDFs directly
 
 function ActsRules() {
-  // REMOVED: const navigate = useNavigate(); // No longer needed
-
-  // Define the list of PDFs for Acts & Rules
+  // list of PDFs for this page
+  // make sure filenames match what's in the public/pdfs folder
   const actsAndRulesPdfs = [
     { title: "Andhra Pradesh Minorities Act, 1994", filename: "acts-1994.pdf" },
     { title: "Andhra Pradesh Minorities Rules, 2000", filename: "rules-2000.pdf" },
     { title: "Latest Amendments (2023)", filename: "amendments-2023.pdf" },
     { title: "Official Circular on New Act", filename: "new-act-circular.pdf" }
   ];
-
-  // REMOVED: Function to handle viewing a specific PDF via navigation
-  // const handleViewPdf = (pdfFileName) => {
-  //   const pdfPath = `/pdfs/${pdfFileName}`;
-  //   navigate('/view-pdf', { state: { pdf: pdfPath } });
-  // };
 
   return (
     <div className="bg-apsmc-light py-20 px-6 min-h-screen">
@@ -41,11 +32,11 @@ function ActsRules() {
                 {pdf.title}
               </h3>
               <div className="flex space-x-4 mt-3 md:mt-0">
-                {/* CHANGED: Now using a direct <a> tag to open PDF in a new tab */}
+                {/* Direct link to open the PDF in a new tab */}
                 <a
-                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`} // Construct direct public path
-                  target="_blank" // Open in new tab
-                  rel="noopener noreferrer" // Security best practice for target="_blank"
+                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -54,7 +45,7 @@ function ActsRules() {
                   </svg>
                   View PDF
                 </a>
-                {/* The download link remains the same, as it already opened a download dialog */}
+                {/* Download button */}
                 <a
                   href={`/pdfs/${pdf.filename}`}
                   download

@@ -1,9 +1,7 @@
-// src/pages/Pms15PointProgramme.js
 import React from 'react';
 
 function Pms15PointProgramme() {
-  // This is a placeholder page for the "PM's 15 Point Programme".
-  // You can expand this content later with specific details, PDFs, etc.
+  // placeholder content, can be expanded later
   const programDetails = [
     "Enhancing opportunities for education.",
     "Equitable share in economic activities.",
@@ -34,7 +32,7 @@ function Pms15PointProgramme() {
           </ul>
         </div>
 
-        {/* You can add more sections here, e.g., for downloadable PDFs or external links */}
+        {/* section for future downloads */}
         <div className="mt-12">
           <p className="text-gray-700">
             Detailed guidelines and reports will be made available here soon.

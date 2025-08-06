@@ -1,24 +1,14 @@
-// src/pages/CircularsOrders.js
 import React from 'react';
-// REMOVED: import { useNavigate } from 'react-router-dom'; // No longer needed as we'll open PDFs directly
 
 function CircularsOrders() {
-  // REMOVED: const navigate = useNavigate(); // No longer needed
-
-  // Define the list of PDFs for Circulars & Orders.
-  // IMPORTANT: Ensure these filenames exactly match the PDFs you place in your public/pdfs folder.
+  // list of PDFs for this page
+  // make sure filenames match what's in the public/pdfs folder
   const circularsAndOrdersPdfs = [
     { title: "Circular: Scheme Implementation Guidelines", filename: "scheme-guidelines-circular.pdf" },
     { title: "Order: Committee Formation for Welfare", filename: "committee-order.pdf" },
     { title: "Circular: Annual Report Submission Dates", filename: "annual-report-circular.pdf" },
     { title: "Order: Fund Allocation for Education", filename: "fund-allocation-order.pdf" }
   ];
-
-  // REMOVED: Function to handle viewing a specific PDF in the dedicated viewer
-  // const handleViewPdf = (pdfFileName) => {
-  //   const pdfPath = `/pdfs/${pdfFileName}`;
-  //   navigate('/view-pdf', { state: { pdf: pdfPath } });
-  // };
 
   return (
     <div className="bg-apsmc-light py-20 px-6 min-h-screen">
@@ -31,23 +21,23 @@ function CircularsOrders() {
         </p>
 
         <div className="space-y-6">
-          {/* Map through the list of PDFs to display each as a clickable card */}
+          {/* loop through the PDFs and display them */}
           {circularsAndOrdersPdfs.map((pdf, index) => (
             <div
-              key={index} // Using index as key is acceptable here as the list is static
+              key={index}
               className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center transition hover:shadow-lg"
-              data-aos="fade-up" // AOS animation for card appearance
-              data-aos-delay={index * 100} // Staggered animation delay
+              data-aos="fade-up"
+              data-aos-delay={index * 100} // stagger animation
             >
               <h3 className="text-xl font-semibold text-apsmc-primary mb-3 md:mb-0 md:text-left">
                 {pdf.title}
               </h3>
               <div className="flex space-x-4 mt-3 md:mt-0">
-                {/* CHANGED: Now using a direct <a> tag to open PDF in a new tab */}
+                {/* Direct link to the PDF in the public folder */}
                 <a
-                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`} // Construct direct public path
-                  target="_blank" // Open in new tab
-                  rel="noopener noreferrer" // Security best practice for target="_blank"
+                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`}
+                  target="_blank" // opens in a new tab
+                  rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -56,7 +46,7 @@ function CircularsOrders() {
                   </svg>
                   View PDF
                 </a>
-                {/* The download link remains the same, as it already opened a download dialog */}
+                {/* Download button */}
                 <a
                   href={`/pdfs/${pdf.filename}`}
                   download

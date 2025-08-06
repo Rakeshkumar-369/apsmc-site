@@ -1,17 +1,17 @@
-import React, { useState } from 'react'; // Import useState for form handling
+import React, { useState } from 'react';
 
 function Contact() {
-  // State to hold form data, including the new phone and file fields
+  // form state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '', // New phone state
+    phone: '', // phone number
     message: '',
-    attachedFile: null, // New file state
+    attachedFile: null, // the uploaded file
   });
-  const [fileError, setFileError] = useState(''); // State for file validation error
+  const [fileError, setFileError] = useState(''); // for pdf validation
 
-  // Generic handler for text input changes
+  // handles all text inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,24 +20,24 @@ function Contact() {
     }));
   };
 
-  // Handler for file input changes
+  // handles file uploads
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
+      // make sure it's a PDF
       if (file.type === 'application/pdf') {
         setFormData((prevData) => ({
           ...prevData,
           attachedFile: file,
         }));
-        setFileError(''); // Clear any previous error
+        setFileError(''); // clear error
       } else {
         setFileError('Only PDF files are allowed.');
         setFormData((prevData) => ({
           ...prevData,
-          attachedFile: null, // Clear selected file if it's not a PDF
+          attachedFile: null, // clear file if it's bad
         }));
-        e.target.value = ''; // Clear the input field in the UI
+        e.target.value = ''; // clear the input field
       }
     } else {
       setFormData((prevData) => ({
@@ -48,7 +48,7 @@ function Contact() {
     }
   };
 
-  // Handler for form submission (for demonstration, just logs data)
+  // form submission handler
   const handleSubmit = (e) => {
     e.preventDefault();
     if (fileError) {
@@ -57,18 +57,18 @@ function Contact() {
     }
     console.log('Form submitted:', formData);
     alert('Thank you for your submission! (Submission functionality not yet implemented)');
-    // Here you would typically send formData to your backend API
+    // TODO: send formData to backend api
     // e.g., fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) });
   };
 
   return (
-    // Main page container with the theme's soft background
+    // main container
     <div className="bg-apsmc-light py-20 px-6">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
 
-        {/* Section displaying contact details and the office location map */}
+        {/* Left column: contact info and map */}
         <div data-aos="fade-right">
-          {/* Contact Information */}
+          {/* Contact Details */}
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-apsmc-primary mb-6 text-center md:text-left">
               Contact Us
@@ -83,7 +83,7 @@ function Contact() {
             </ul>
           </div>
 
-          {/* Embedded Google Map for our office location */}
+          {/* Map */}
           <div className="mt-12">
             <h3 className="text-2xl font-bold text-apsmc-primary mb-6 text-center md:text-left">Our Location</h3>
             <div className="relative" style={{ paddingBottom: '75%', height: 0 }}>
@@ -101,13 +101,13 @@ function Contact() {
           </div>
         </div>
 
-        {/* Form for feedback and grievance submission */}
+        {/* Right column: the form */}
         <div data-aos="fade-left">
           <h2 className="text-3xl md:text-4xl font-bold text-apsmc-primary mb-6 text-center md:text-left">Feedback & Grievance Redressal</h2>
           <p className="text-gray-700 mb-10 text-lg text-center md:text-left">
             Your voice matters. Share your suggestions or file a grievance with the APSMC.
           </p>
-          <form className="space-y-6 text-left" onSubmit={handleSubmit}> {/* Added onSubmit handler */}
+          <form className="space-y-6 text-left" onSubmit={handleSubmit}>
             <input
               type="text"
               name="name"
@@ -126,9 +126,9 @@ function Contact() {
               onChange={handleChange}
               required
             />
-            {/* NEW: Phone Number Input */}
+            {/* phone input */}
             <input
-              type="tel" // Use type="tel" for phone numbers
+              type="tel"
               name="phone"
               placeholder="Your Phone Number"
               className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-apsmc-primary"
@@ -144,7 +144,7 @@ function Contact() {
               onChange={handleChange}
               required
             ></textarea>
-            {/* NEW: File Input for PDF only */}
+            {/* file upload (pdf only) */}
             <div>
               <label htmlFor="file-upload" className="block text-gray-700 text-sm font-bold mb-2">
                 Attach Document (PDF only):
@@ -153,7 +153,7 @@ function Contact() {
                 id="file-upload"
                 type="file"
                 name="attachedFile"
-                accept="application/pdf" // Restrict to PDF files
+                accept="application/pdf"
                 className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-apsmc-primary file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-apsmc-primary hover:file:bg-blue-100"
                 onChange={handleFileChange}
               />

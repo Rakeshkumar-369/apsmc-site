@@ -1,8 +1,7 @@
-// AnnouncementBar.js
 import React from 'react';
 
 function AnnouncementBar() {
-  // Hardcoded announcements for now; these will eventually be fetched from an API.
+  // Hardcoded for now. Should be fetched from the API later.
   const messages = [
     "🎓 Scholarship applications open till 31st July. Apply now!",
     "🎉 New welfare schemes launched for minority communities!",
@@ -10,31 +9,35 @@ function AnnouncementBar() {
     "💡 Empowering youth through skill development programs!"
   ];
 
-  // Prepare text for the continuous marquee scroll
+  // join messages together for the marquee scroll
   const marqueeText = messages.join(" \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 ");
 
   return (
     <div className="bg-white shadow-md py-2 px-4 overflow-hidden relative">
-      {/* Custom CSS for marquee effect */}
+      {/* Simple marquee effect using CSS animations.
+        The container width is set to fit the content, and then we scroll it
+        by 50% of its total width to make the loop seamless.
+      */}
       <style jsx>{`
         @keyframes marquee {
           0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); } /* Scrolls content by half its total width for seamless loop */
+          100% { transform: translateX(-50%); }
         }
 
         .marquee-container {
           display: flex;
-          width: fit-content; /* Ensure container size fits content for accurate animation */
+          width: fit-content;
           white-space: nowrap;
-          animation: marquee 40s linear infinite; /* Control scroll speed and repetition */
+          animation: marquee 40s linear infinite;
         }
 
+        /* pause the animation on hover for better UX */
         .marquee-container:hover {
-          animation-play-state: paused; /* User-friendly pause on hover */
+          animation-play-state: paused;
         }
       `}</style>
 
-      {/* Duplicating content to create an infinite scroll effect */}
+      {/* We duplicate the content to create the infinite scroll illusion */}
       <div className="marquee-container text-apsmc-primary text-sm font-medium">
         <span>{marqueeText}</span>
         <span>{marqueeText}</span>

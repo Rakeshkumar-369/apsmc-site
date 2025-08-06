@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // For internal navigation within the app
+import { Link } from 'react-router-dom';
 
+// hardcoded data for now, should be fetched from an API
 const members = [
-  // Hardcoded member data for now; consider fetching this dynamically from an API later
   {
     name: 'Mr. A. Rahman',
     role: 'Chairman',
@@ -47,7 +47,7 @@ function Organisation() {
               key={index}
               className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition"
               data-aos="zoom-in"
-              data-aos-delay={index * 100} // Staggered animation for each member card
+              data-aos-delay={index * 100} // stagger animation
             >
               <img
                 src={member.image}
@@ -59,15 +59,15 @@ function Organisation() {
             </div>
           ))}
 
-          {/* Dedicated card linking to the full Administration Structure page */}
+          {/* card linking to the admin structure page */}
           <Link
             to="/administration-structure"
             className="bg-apsmc-primary rounded-lg p-6 shadow hover:shadow-lg transition flex flex-col items-center justify-center text-white font-semibold text-center cursor-pointer"
             data-aos="zoom-in"
-            data-aos-delay={members.length * 100} // Ensures this card animates after all member cards
-            style={{ minHeight: '180px' }} // Helps maintain consistent card height in the grid
+            data-aos-delay={members.length * 100} // animates after the member cards
+            style={{ minHeight: '180px' }}
           >
-            {/* Visual icon representing structure/organization */}
+            {/* simple icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-12 w-12 mb-4 text-white"

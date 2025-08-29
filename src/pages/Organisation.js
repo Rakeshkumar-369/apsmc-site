@@ -1,90 +1,87 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-// hardcoded data for now, should be fetched from an API
-const members = [
-  {
-    name: 'Mr. A. Rahman',
-    role: 'Chairman',
-    image: 'https://via.placeholder.com/150'
-  },
-  {
-    name: 'Ms. S. Fatima',
-    role: 'Vice Chairperson',
-    image: 'https://via.placeholder.com/150'
-  },
-  {
-    name: 'Dr. K. Rao',
-    role: 'Member Secretary',
-    image: 'https://via.placeholder.com/150'
-  },
-  {
-    name: 'Mr. M. Yousuf',
-    role: 'Legal Advisor',
-    image: 'https://via.placeholder.com/150'
-  },
-  {
-    name: 'Ms. J. Begum',
-    role: 'Welfare Coordinator',
-    image: 'https://via.placeholder.com/150'
-  }
-];
+import React, { useState, useEffect } from 'react';
+// DELETED: The incorrect import statement has been removed from this line.
 
 function Organisation() {
-  return (
-    <div className="bg-apsmc-light py-20 px-6">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2
-          className="text-3xl md:text-4xl font-bold text-apsmc-primary mb-12"
-          data-aos="fade-up"
-        >
-          Organisation Members
-        </h2>
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_BASE_URL = 'http://10.0.0.195:5000';
+  
+  // CORRECTED: Use the public path as a string for the fallback image.
+  const FALLBACK_IMAGE_URL = '/images/aictc.png'; 
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10">
-          {members.map((member, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition"
-              data-aos="zoom-in"
-              data-aos-delay={index * 100} // stagger animation
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/members`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch members. Network response was not ok.');
+        }
+        const data = await response.json();
+        setMembers(data);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+        setError('Failed to load commission members. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) {
+      // Return the public path string.
+      return FALLBACK_IMAGE_URL;
+    }
+    return `${API_BASE_URL}/uploads/images/${imagePath}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <h1 className="text-3xl font-bold text-apsmc-blue mb-6">Our Commission</h1>
+        <p className="text-gray-600">Loading members...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <h1 className="text-3xl font-bold text-apsmc-blue mb-6">Our Commission</h1>
+        <p className="text-red-500 bg-red-100 p-4 rounded-md">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto p-8">
+        <h1 className="text-3xl font-bold text-center text-apsmc-blue mb-10">
+          Organisation Structure
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {members.map((member) => (
+            <div 
+              key={member.id} 
+              className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
             >
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-              />
-              <h3 className="text-lg font-semibold text-apsmc-primary">{member.name}</h3>
-              <p className="text-gray-600 text-sm">{member.role}</p>
+              <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
+                 <img 
+                  src={getImageUrl(member.image)} 
+                  alt={member.name} 
+                  className="w-full h-full object-cover"
+                  // CORRECTED: The onError fallback now also uses the public path string.
+                  onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE_URL; }} 
+                />
+              </div>
+              <div className="p-6 text-center">
+                <h2 className="text-xl font-bold text-apsmc-blue">{member.name}</h2>
+                <p className="text-md text-gray-700 capitalize">{member.role}</p>
+              </div>
             </div>
           ))}
-
-          {/* card linking to the admin structure page */}
-          <Link
-            to="/administration-structure"
-            className="bg-apsmc-primary rounded-lg p-6 shadow hover:shadow-lg transition flex flex-col items-center justify-center text-white font-semibold text-center cursor-pointer"
-            data-aos="zoom-in"
-            data-aos-delay={members.length * 100} // animates after the member cards
-            style={{ minHeight: '180px' }}
-          >
-            {/* simple icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mb-4 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"
-              />
-            </svg>
-            <h3 className="text-xl">Administration Structure</h3>
-            <p className="text-sm text-gray-100 mt-1">Click to view details</p>
-          </Link>
         </div>
       </div>
     </div>

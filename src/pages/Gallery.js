@@ -1,69 +1,87 @@
-import React, { useState } from 'react';
-// Idatawould come from your backend API.
-// larger set of placeholder images.
-const allGalleryImages = [
-  { id: 1, url: 'https://via.placeholder.com/400x300?text=Photo+1', caption: 'Inauguration Ceremony' },
-  { id: 2, url: 'https://via.placeholder.com/400x300?text=Photo+2', caption: 'Community Meeting in Guntur' },
-  { id: 3, url: 'https://via.placeholder.com/400x300?text=Photo+3', caption: 'Scholarship Distribution Event' },
-  { id: 4, url: 'https://via.placeholder.com/400x300?text=Photo+4', caption: 'Skill Development Workshop' },
-  { id: 5, url: 'https://via.placeholder.com/400x300?text=Photo+5', caption: 'Visit to Minority Welfare Hostel' },
-  { id: 6, url: 'https://via.placeholder.com/400x300?text=Photo+6', caption: 'Press Conference with the Chairman' },
-  { id: 7, url: 'https://via.placeholder.com/400x300?text=Photo+7', caption: 'Awareness Campaign Launch' },
-  { id: 8, url: 'https://via.placeholder.com/400x300?text=Photo+8', caption: 'Annual General Body Meeting' },
-  { id: 9, url: 'https://via.placeholder.com/400x300?text=Photo+9', caption: 'Legal Aid Camp' },
-  { id: 10, url: 'https://via.placeholder.com/400x300?text=Photo+10', caption: 'Educational Seminar' },
-  { id: 11, url: 'https://via.placeholder.com/400x300?text=Photo+11', caption: 'Cultural Fest Celebrations' },
-  { id: 12, url: 'https://via.placeholder.com/400x300?text=Photo+12', caption: 'Meeting with Government Officials' },
-];
+import React, { useState, useEffect } from 'react';
 
+// --- Your original component structure ---
 function Gallery() {
-  const [selectedImage, setSelectedImage] = useState(null);
+  // --- NEW: State for fetching images and managing the lightbox view ---
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null); // For lightbox
+  const API_BASE_URL = 'http://10.0.0.195:5000';
 
-  const openModal = (image) => {
-    setSelectedImage(image);
+  // --- NEW: Fetch images from the API when the component loads ---
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/image`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch gallery images.');
+        }
+        const data = await response.json();
+        // The API returns an object with an 'images' array
+        setImages(data.images || []);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchImages();
+  }, []); // Empty array ensures this runs only once
+
+  // --- NEW: Helper function to get the full URL for an image ---
+  const getImageUrl = (imagePath) => {
+    // The 'url' from the API is a relative path, e.g., /images/filename.jpg
+    return `${API_BASE_URL}${imagePath}`;
   };
 
-  const closeModal = () => {
-    setSelectedImage(null);
-  };
-
+  // --- Your original, unchanged JSX layout ---
   return (
-    <div className="bg-apsmc-light py-20 px-6 min-h-screen">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-apsmc-primary mb-4" data-aos="fade-down">
-          Photo Gallery
-        </h2>
-        <p className="text-lg text-gray-700 mb-12" data-aos="fade-down" data-aos-delay="100">
-          A glimpse into the activities and events of the Andhra Pradesh State Minorities Commission.
-        </p>
+    <div className="bg-gray-100 py-20 px-4">
+      <div className="container mx-auto">
+        <h1 className="text-4xl font-bold text-center text-apsmc-primary mb-12">
+          Our Gallery
+        </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {allGalleryImages.map((image, index) => (
-            <div
-              key={image.id}
-              className="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-              onClick={() => openModal(image)}
-              data-aos="zoom-in"
-              data-aos-delay={index * 50}
-            >
-              <img src={image.url} alt={image.caption} className="w-full h-48 object-cover" />
-            </div>
-          ))}
-        </div>
+        {/* --- MODIFIED: Conditional rendering for loading, error, and data states --- */}
+        {loading && <p className="text-center text-gray-600">Loading images...</p>}
+        {error && <p className="text-center text-red-500 bg-red-100 p-4 rounded-md">{error}</p>}
+        {!loading && !error && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* --- MODIFIED: Mapping over fetched images --- */}
+            {images.map((image) => (
+              <div
+                key={image.id}
+                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-300"
+                data-aos="fade-up"
+                onClick={() => setSelectedImage(getImageUrl(image.url))} // --- NEW: Open lightbox on click
+              >
+                <img
+                  src={getImageUrl(image.url)}
+                  alt={`Gallery item ${image.id}`}
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Image Modal */}
+      {/* --- NEW: Lightbox Modal for viewing full image (does not affect page layout) --- */}
       {selectedImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-          onClick={closeModal}
+          onClick={() => setSelectedImage(null)} // Close on background click
         >
-          <div className="bg-white p-4 rounded-lg shadow-2xl max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedImage.url} alt={selectedImage.caption} className="w-full h-auto rounded-md" />
-            <p className="text-center text-gray-800 mt-4 font-semibold">{selectedImage.caption}</p>
+          <div className="relative max-w-4xl max-h-full p-4">
+            <img
+              src={selectedImage}
+              alt="Full-size view"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            />
             <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-white text-2xl font-bold"
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 text-white text-3xl font-bold"
             >
               &times;
             </button>

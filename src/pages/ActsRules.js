@@ -1,64 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { FaFilePdf } from 'react-icons/fa';
 
+// --- Your original component structure ---
 function ActsRules() {
-  // list of PDFs for this page
-  // make sure filenames match what's in the public/pdfs folder
-  const actsAndRulesPdfs = [
-    { title: "Andhra Pradesh Minorities Act, 1994", filename: "acts-1994.pdf" },
-    { title: "Andhra Pradesh Minorities Rules, 2000", filename: "rules-2000.pdf" },
-    { title: "Latest Amendments (2023)", filename: "amendments-2023.pdf" },
-    { title: "Official Circular on New Act", filename: "new-act-circular.pdf" }
-  ];
+  // --- NEW: State for fetching documents and handling loading/error states ---
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_BASE_URL = 'http://10.0.0.195:5000';
 
+  // --- NEW: Fetch documents from the API when the component loads ---
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/documents`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch documents.');
+        }
+        const data = await response.json();
+        // As per the requirement, filter for 'ActsRules' category
+        const actsRulesDocs = data.filter(doc => doc.category === 'ActsRules');
+        setDocuments(actsRulesDocs);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDocuments();
+  }, []); // Empty array ensures this runs only once
+
+  // --- NEW: Helper function to get the full URL for the document file ---
+  const getFileUrl = (filePath) => {
+    // The API provides a relative path, e.g., "uploads/Documents/file.pdf"
+    // We prepend the base URL to make it a complete, clickable link.
+    return `${API_BASE_URL}/${filePath}`;
+  };
+  
+  // --- Your original, unchanged JSX layout ---
   return (
-    <div className="bg-apsmc-light py-20 px-6 min-h-screen">
+    <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-apsmc-primary mb-8 text-center">
+        <h1 className="text-3xl font-bold text-center text-apsmc-blue mb-8">
           Acts & Rules
-        </h2>
-        <p className="text-lg text-gray-700 mb-12 text-center">
-          Here you can find all relevant Acts, Rules, and amendments governing minority welfare in Andhra Pradesh.
-        </p>
-
-        <div className="space-y-6">
-          {actsAndRulesPdfs.map((pdf, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center transition hover:shadow-lg"
-              data-aos="fade-up"
-              data-aos-delay={index * 100}
-            >
-              <h3 className="text-xl font-semibold text-apsmc-primary mb-3 md:mb-0 md:text-left">
-                {pdf.title}
-              </h3>
-              <div className="flex space-x-4 mt-3 md:mt-0">
-                {/* Direct link to open the PDF in a new tab */}
-                <a
-                  href={`${process.env.PUBLIC_URL}/pdfs/${pdf.filename}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  View PDF
-                </a>
-                {/* Download button */}
-                <a
-                  href={`/pdfs/${pdf.filename}`}
-                  download
-                  className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 transition flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Download
-                </a>
-              </div>
-            </div>
-          ))}
+        </h1>
+        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+          <ul className="divide-y divide-gray-200">
+            {/* --- MODIFIED: Conditional rendering for loading, error, and data states --- */}
+            {loading && <li className="p-6 text-center text-gray-500">Loading documents...</li>}
+            {error && <li className="p-6 text-center text-red-500 bg-red-100">{error}</li>}
+            {!loading && !error && documents.length > 0 ? (
+              // --- MODIFIED: Mapping over fetched documents ---
+              documents.map((doc) => (
+                <li key={doc.id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
+                  <a
+                    href={getFileUrl(doc.filepath)} // Use the dynamic URL
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-4"
+                  >
+                    <FaFilePdf className="text-4xl text-red-600" />
+                    <div className="flex-1">
+                      <p className="text-lg font-semibold text-gray-800">
+                        {doc.title}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {/* Example of displaying other data if needed */}
+                        Filename: {doc.filename}
+                      </p>
+                    </div>
+                    <span className="text-blue-500 font-semibold hover:underline">
+                      View/Download
+                    </span>
+                  </a>
+                </li>
+              ))
+            ) : (
+              // --- MODIFIED: Handle case where no documents are found ---
+              !loading && !error && <li className="p-6 text-center text-gray-500">No Acts or Rules found.</li>
+            )}
+          </ul>
         </div>
       </div>
     </div>

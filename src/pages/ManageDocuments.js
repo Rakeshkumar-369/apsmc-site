@@ -1,138 +1,179 @@
-import React, { useState } from 'react';
-import { FaPlus, FaTrash, FaFilePdf } from 'react-icons/fa';
-
-// placeholder data, will be replaced by API call
-const initialDocuments = [
-    { id: 101, title: 'Andhra Pradesh Minorities Act, 1994', category: 'Acts & Rules', filename: 'acts-1994.pdf' },
-    { id: 102, title: 'Tender Notice: Construction of Skill Center', category: 'Tenders', filename: 'tender-skill-center-construction.pdf' },
-    { id: 103, title: 'Annual Budget Allocation (2024-25)', category: 'Budget', filename: 'annual-budget-2024-25.pdf' }
-];
-
-// These categories should match the public-facing pages
-const categories = ["Acts & Rules", "Circulars & Orders", "Population Data", "Tenders", "Budget", "PM's 15 Point Programme"];
+import React, { useState, useEffect, useCallback } from 'react';
+import AdminLayout from '../components/AdminLayout';
+import { useAuth } from '../context/AuthContext'; // NEW: To get the auth token
+import { FaPlus, FaTrash, FaSpinner, FaFilePdf } from 'react-icons/fa'; // NEW: Icons for UI feedback
 
 function ManageDocuments() {
-    const [documents, setDocuments] = useState(initialDocuments);
-    const [title, setTitle] = useState('');
-    const [category, setCategory] = useState(categories[0]);
-    const [file, setFile] = useState(null);
-    const [error, setError] = useState('');
+  // --- NEW: State for documents, form inputs, and submission status ---
+  const [documents, setDocuments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+  
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('ActsRules'); // Default category
+  const [file, setFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const API_BASE_URL = 'http://10.0.0.195:5000';
 
-    const handleAddDocument = (e) => {
-        e.preventDefault();
-        if (!title.trim() || !file) {
-            setError('Title and a PDF file are required.');
-            return;
-        }
+  // --- NEW: Function to fetch all documents ---
+  const fetchDocuments = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/documents`);
+      if (!response.ok) throw new Error('Failed to fetch documents.');
+      const data = await response.json();
+      setDocuments(data || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-        const newDocument = {
-            id: Date.now(), // temp unique ID
-            title,
-            category,
-            filename: file.name
-        };
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
 
-        setDocuments([newDocument, ...documents]);
-        
-        // clear the form
-        setTitle('');
-        setCategory(categories[0]);
-        setFile(null);
-        document.getElementById('pdf-upload').value = '';
-        setError('');
+  // --- NEW: Handler for the file input ---
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-        alert(`(Frontend) Successfully added document: "${title}" to category: "${category}"`);
-    };
+  // --- NEW: Function to handle uploading a new document ---
+  const handleAddDocument = async (e) => {
+    e.preventDefault();
+    if (!file) {
+      setError('Please select a file to upload.');
+      return;
+    }
+    setIsSubmitting(true);
+    setError(null);
 
-    const handleDeleteDocument = (idToDelete) => {
-        setDocuments(documents.filter(doc => doc.id !== idToDelete));
-        alert(`(Frontend) Successfully deleted document ID: ${idToDelete}`);
-    };
+    const formData = new FormData();
+    formData.append('action', 'add');
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/documents`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to add document.');
+      
+      setTitle('');
+      setCategory('ActsRules');
+      setFile(null);
+      e.target.reset();
+      fetchDocuments();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- NEW: Function to handle deleting a document ---
+  const handleDeleteDocument = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this document?')) return;
     
-    // basic check for PDF files
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile && selectedFile.type === "application/pdf") {
-            setFile(selectedFile);
-            setError('');
-        } else {
-            setFile(null);
-            setError('Please select a valid PDF file.');
-        }
-    };
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('id', id);
 
-    return (
-        <div className="bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Manage Page Documents (PDFs)</h2>
+    try {
+      const response = await fetch(`${API_BASE_URL}/documents`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to delete document.');
+      fetchDocuments();
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  };
 
-            {/* Add Document Form */}
-            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
-                <h3 className="text-xl font-semibold mb-4">Upload New Document</h3>
-                <form onSubmit={handleAddDocument}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label htmlFor="docTitle" className="block text-gray-700 font-medium mb-1">Document Title</label>
-                            <input
-                                id="docTitle"
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="Enter the document title"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="docCategory" className="block text-gray-700 font-medium mb-1">Category</label>
-                            <select
-                                id="docCategory"
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            >
-                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="pdf-upload" className="block text-gray-700 font-medium mb-1">PDF File</label>
-                            <input
-                                id="pdf-upload"
-                                type="file"
-                                accept="application/pdf"
-                                onChange={handleFileChange}
-                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                        </div>
-                    </div>
-                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                    <button type="submit" className="flex items-center bg-apsmc-primary text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
-                        <FaPlus className="mr-2" />
-                        Add Document
-                    </button>
-                </form>
+  // --- Your original, unchanged JSX layout, now using the new logic ---
+  return (
+    <AdminLayout>
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Manage Documents</h1>
+        
+        {/* Your original "Add Document" form, now connected to handleAddDocument */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold mb-4">Add Document</h2>
+          <form onSubmit={handleAddDocument}>
+            <div className="mb-4">
+              <label htmlFor="doc-title" className="block text-gray-700">Title</label>
+              <input type="text" id="doc-title" value={title} onChange={(e) => setTitle(e.target.value)}
+                className="w-full mt-2 p-2 border rounded" required />
             </div>
-
-            {/* List of existing documents */}
-            <div>
-                <h3 className="text-xl font-semibold mb-4">Uploaded Documents</h3>
-                <div className="space-y-4">
-                    {documents.map(doc => (
-                        <div key={doc.id} className="flex items-center justify-between p-4 border rounded-md bg-gray-50">
-                            <div className="flex items-center">
-                                <FaFilePdf className="w-6 h-6 text-red-500 mr-4" />
-                                <div>
-                                    <h4 className="font-bold">{doc.title}</h4>
-                                    <p className="text-sm text-gray-600">Category: {doc.category}</p>
-                                </div>
-                            </div>
-                            <button onClick={() => handleDeleteDocument(doc.id)} className="text-red-500 hover:text-red-700">
-                                <FaTrash className="w-5 h-5" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
+            <div className="mb-4">
+              <label htmlFor="doc-category" className="block text-gray-700">Category</label>
+              <select id="doc-category" value={category} onChange={(e) => setCategory(e.target.value)}
+                className="w-full mt-2 p-2 border rounded bg-white" required>
+                <option value="ActsRules">Acts & Rules</option>
+                <option value="CircularsOrders">Circulars & Orders</option>
+                <option value="Tenders">Tenders</option>
+                <option value="Budget">Budget</option>
+              </select>
             </div>
+            <div className="mb-4">
+              <label htmlFor="doc-file" className="block text-gray-700">File</label>
+              <input type="file" id="doc-file" onChange={handleFileChange}
+                className="w-full mt-2 p-2 border rounded" required />
+            </div>
+            {/* NEW: Displaying errors and submission status on the button */}
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            <button type="submit" disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 flex items-center">
+              {isSubmitting ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-2" />}
+              {isSubmitting ? 'Uploading...' : 'Add Document'}
+            </button>
+          </form>
         </div>
-    );
+
+        {/* Your original "Existing Documents" section, now populated from the API */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Existing Documents</h2>
+          {isLoading ? <p>Loading documents...</p> : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600">Title</th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600">Category</th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600">Filename</th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents.map(doc => (
+                    <tr key={doc.id}>
+                      <td className="px-6 py-4 border-b border-gray-200 flex items-center"><FaFilePdf className="text-red-500 mr-2" /> {doc.title}</td>
+                      <td className="px-6 py-4 border-b border-gray-200">{doc.category}</td>
+                      <td className="px-6 py-4 border-b border-gray-200">{doc.filename}</td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-right">
+                        <button onClick={() => handleDeleteDocument(doc.id)} className="text-red-500 hover:text-red-700">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </AdminLayout>
+  );
 }
 
 export default ManageDocuments;

@@ -1,23 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 function AnnouncementBar() {
-  // Hardcoded for now. Should be fetched from the API later.
-  const messages = [
-    "🎓 Scholarship applications open till 31st July. Apply now!",
-    "🎉 New welfare schemes launched for minority communities!",
-    "🗓️ Important meeting on August 15th at Secretariat Building.",
-    "💡 Empowering youth through skill development programs!"
-  ];
+  // --- NEW: State for fetching messages from the API ---
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // join messages together for the marquee scroll
-  const marqueeText = messages.join(" \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 ");
+  // --- NEW: Fetch data from the API when the component loads ---
+  useEffect(() => {
+    fetch('http://10.0.0.195:5000/news')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch announcements');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Extract just the titles for the marquee
+        const titles = data.newsItems.map(item => item.title);
+        setMessages(titles);
+      })
+      .catch(error => {
+        console.error("Error fetching news:", error);
+        // Set a fallback message on error so the bar doesn't break
+        setError("Could not load announcements.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []); // Empty array ensures this runs only once
 
+  // --- MODIFIED: Logic to handle loading, error, and successful fetch ---
+  let marqueeText;
+  if (loading) {
+    marqueeText = "Loading latest announcements...";
+  } else if (error) {
+    marqueeText = error;
+  } else if (messages.length === 0) {
+    marqueeText = "No current announcements.";
+  } else {
+    // Original logic to join messages for the marquee scroll
+    marqueeText = messages.join(" \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 ");
+  }
+
+  // --- Your original, unchanged JSX layout ---
   return (
     <div className="bg-white shadow-md py-2 px-4 overflow-hidden relative">
-      {/* Simple marquee effect using CSS animations.
-        The container width is set to fit the content, and then we scroll it
-        by 50% of its total width to make the loop seamless.
-      */}
       <style jsx>{`
         @keyframes marquee {
           0% { transform: translateX(0%); }
@@ -31,13 +59,11 @@ function AnnouncementBar() {
           animation: marquee 40s linear infinite;
         }
 
-        /* pause the animation on hover for better UX */
         .marquee-container:hover {
           animation-play-state: paused;
         }
       `}</style>
 
-      {/* We duplicate the content to create the infinite scroll illusion */}
       <div className="marquee-container text-apsmc-primary text-sm font-medium">
         <span>{marqueeText}</span>
         <span>{marqueeText}</span>
